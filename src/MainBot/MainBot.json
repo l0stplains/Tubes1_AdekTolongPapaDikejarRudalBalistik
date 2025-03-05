@@ -1,0 +1,14 @@
+{
+    "name": "Main Bot",
+    "version": "1.0",
+    "authors": [
+        "Refki Alfarizi",
+        "Kenneth Ricardo Chandra",
+        "Nadhif Radityo Nugroho"
+    ],
+    "description": "A bot that drives forward and backward, and fires a bullet",
+    "homepage": "",
+    "countryCodes": ["id"],
+    "platform": ".Net 9.0",
+    "programmingLang": "C# 13.0"
+}
