@@ -8,4 +8,4 @@ if %ERRORLEVEL% neq 0 (
     exit /b %ERRORLEVEL%
 )
 
-dotnet run --no-build
+dotnet run --configuration Release --no-build

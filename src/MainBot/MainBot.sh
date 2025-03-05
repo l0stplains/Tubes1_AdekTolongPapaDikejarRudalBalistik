@@ -6,4 +6,4 @@ if ! dotnet build --configuration Release; then
     exit 1
 fi
 
-dotnet run --no-build
+dotnet run --configuration Release --no-build
