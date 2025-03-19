@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Robocode.TankRoyale.BotApi"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MainBot", "src\MainBot\MainBot.csproj", "{E4E743E7-0D9C-4382-928F-1F8D411CA4DF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FreedomBot", "src\FreedomBot\FreedomBot.csproj", "{A84BAEFC-DDDE-478C-A959-393904B3BD1E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,9 +28,14 @@ Global
 		{E4E743E7-0D9C-4382-928F-1F8D411CA4DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4E743E7-0D9C-4382-928F-1F8D411CA4DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4E743E7-0D9C-4382-928F-1F8D411CA4DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A84BAEFC-DDDE-478C-A959-393904B3BD1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A84BAEFC-DDDE-478C-A959-393904B3BD1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A84BAEFC-DDDE-478C-A959-393904B3BD1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A84BAEFC-DDDE-478C-A959-393904B3BD1E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7DECBAE3-D818-4FF1-A2B1-B7CE398AFBC9} = {DD22622E-C7A4-45D4-9992-F9BF04397893}
 		{E4E743E7-0D9C-4382-928F-1F8D411CA4DF} = {DD22622E-C7A4-45D4-9992-F9BF04397893}
+		{A84BAEFC-DDDE-478C-A959-393904B3BD1E} = {DD22622E-C7A4-45D4-9992-F9BF04397893}
 	EndGlobalSection
 EndGlobal

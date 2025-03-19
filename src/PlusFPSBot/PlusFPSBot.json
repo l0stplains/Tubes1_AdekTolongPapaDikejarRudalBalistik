@@ -1,0 +1,12 @@
+{
+    "name": "Plus FPS Bot",
+    "version": "1.0",
+    "authors": [
+        "Refki Alfarizi"
+    ],
+    "description": "RGB Tank for more FPS",
+    "homepage": "",
+    "countryCodes": ["id"],
+    "platform": ".Net 8.0",
+    "programmingLang": "C# 13.0"
+}
