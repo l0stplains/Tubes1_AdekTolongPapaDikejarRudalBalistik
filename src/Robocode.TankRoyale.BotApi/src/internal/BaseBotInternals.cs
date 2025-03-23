@@ -221,6 +221,7 @@ public sealed class BaseBotInternals
         if (thread != null)
         {
             thread.Interrupt();
+            thread.Join();
             thread = null;
         }
     }

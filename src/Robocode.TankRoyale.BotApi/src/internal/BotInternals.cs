@@ -47,6 +47,10 @@ internal sealed class BotInternals : IStopResumeListener
         internalEventHandlers.OnDeath.Subscribe(OnDeath, 90);
     }
 
+    public void EnableEventHandling(bool enable) {
+        baseBotInternals.EnableEventHandling(enable);
+    }
+
     private void OnNextTurn(TickEvent evt)
     {
         if (evt.TurnNumber == 1)
@@ -422,4 +426,4 @@ internal sealed class BotInternals : IStopResumeListener
     }
 
     private static bool IsNearZero(double value) => Math.Abs(value) < .00001;
-}
+};
