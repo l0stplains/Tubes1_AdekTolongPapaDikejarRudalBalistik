@@ -80,7 +80,7 @@ Program ini dibuat oleh Tim dengan Nama AdekTolongPapaDikejarRudalBalistik yang 
 
 ## Requirement
 Untuk memainkan Robocode Tank Royale ini, dibutuhkan beberapa komponen yaitu
-1. Versi Dotnet yang sesuai dengan bot yang dimiliki
+1. Versi Dotnet yang sesuai dengan bot yang dimiliki, dalam kondisi ini, bot yang dimiliki berada dalam versi 8.0
 2. Aplikasi Robocode
 
 ## Setup

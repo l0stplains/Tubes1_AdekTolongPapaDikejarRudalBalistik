@@ -1,0 +1,14 @@
+{
+  "name": "Hecate",
+  "version": "1.0",
+  "authors": [
+      "Refki Alfarizi",
+      "Kenneth Ricardo C.",
+      "Nadhif Radityo N."
+  ],
+  "description": "The PGM Hécate II, also known as the FR-12.7, is a French-made heavy sniper rifle and anti-materiel rifle.",
+  "homepage": "",
+  "countryCodes": ["id"],
+  "platform": ".Net 8.0",
+  "programmingLang": "C# 13.0"
+}
