@@ -1,0 +1,14 @@
+{
+    "name": "Dantol Bot",
+    "version": "1.0",
+    "authors": [
+        "Refki Alfarizi",
+        "Kenneth Ricardo C.",
+        "Nadhif Radityo N."
+    ],
+    "description": "Adiiitt tolongin",
+    "homepage": "",
+    "countryCodes": ["id"],
+    "platform": ".Net 8.0",
+    "programmingLang": "C# 12.0"
+}

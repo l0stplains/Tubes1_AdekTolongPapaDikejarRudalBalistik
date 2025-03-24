@@ -36,6 +36,10 @@ public abstract class Bot : BaseBot, IBot
         botInternals = new BotInternals(this, BaseBotInternals);
     }
 
+    public void EnableEventHandling(bool enable) {
+        botInternals.EnableEventHandling(enable);
+    }
+
     /// <inheritdoc/>
     public override double TurnRate
     {

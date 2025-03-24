@@ -62,13 +62,21 @@ internal sealed class EventQueue : IComparer<BotEvent>
 
     internal void SetInterruptible(Type eventType, bool interruptible)
     {
-        if (interruptible)
-            interruptibles.Add(eventType);
-        else
-            interruptibles.Remove(eventType);
+        lock(interruptibles) {
+            if (interruptible)
+                interruptibles.Add(eventType);
+            else
+                interruptibles.Remove(eventType);
+        }
     }
 
-    private bool IsInterruptible => interruptibles.Contains(currentTopEvent.GetType());
+    private bool IsInterruptible {
+        get {
+            lock(interruptibles) {
+                return interruptibles.Contains(currentTopEvent.GetType());
+            }
+        }
+    }
 
     internal void AddEventsFromTick(TickEvent tickEvent)
     {
