@@ -43,8 +43,7 @@ Saat menembakkan peluru, meriam akan menjadi panas. Peluru yang lebih berat meng
 Perlu diperhatikan bahwa bot akan menerima kerusakan jika menabrak dinding (batas arena), yang disebut wall damage. Hal yang sama juga terjadi jika bot bertabrakan dengan bot lain.
 Jika bot menabrak bot musuh dengan bergerak maju, ini disebut ramming (menabrak dengan sengaja), yang akan memberikan sedikit skor tambahan bagi bot yang menyerang.
 7. Bagian Tubuh Tank
-Tubuh tank terdiri dari 3 bagian:
-
+Tubuh tank terdiri dari 3 bagian
 Body adalah bagian utama dari tank yang digunakan untuk menggerakkan tank.
 Gun digunakan untuk menembakkan peluru dan dapat berputar bersama body atau independen dari body.
 Radar digunakan untuk memindai posisi musuh dan dapat berputar bersama body atau independen dari body.
@@ -110,8 +109,3 @@ Jika ingin memainkan Robocode Tank Royale dan menggunakan bot yang telah dibuat,
 
 10. Untuk melakukan build pada bot, dapat dilakukan dengan menuju direktori lokasi bot, lalu 
    
-
-   Penjelasan singkat algoritma greedy yang diimplementasikan untuk setiap bot yang dibuat
-Requirement program dan instalasi tertentu bila ada
-Command atau langkah-langkah dalam meng-compile atau build program 
-Author (identitas pembuat)
