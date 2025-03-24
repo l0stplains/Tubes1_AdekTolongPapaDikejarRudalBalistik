@@ -10,7 +10,7 @@
     <br />
     <a href="https://github.com/l0stplains/Tubes1_AdekTolongPapaDikejarRudalBalistik/releases/">Rilis</a>
     ·
-    <a href="https://github.com/l0stplains/Tubes1_AdekTolongPapaDikejarRudalBalistik/tree/main/doc/AdekTolongPapaDikejarRudalBalistik.pdf">Laporan</a>
+    <a href="https://github.com/l0stplains/Tubes1_AdekTolongPapaDikejarRudalBalistik/tree/main/docs/AdekTolongPapaDikejarRudalBalistik.pdf">Laporan</a>
 </p>
 
 ## Overview
