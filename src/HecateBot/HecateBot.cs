@@ -71,7 +71,7 @@ namespace Tubes1_AdekTolongPapaDikejarRudalBalistik.HecateBot
             double absBearing = BearingTo(e.X, e.Y) + Direction;
 
             double bulletPower;
-            if (Energy < 20)
+            if (Energy < 30)
                 bulletPower = 1.0;  
             else if (Energy > 70)
                 bulletPower = 3.0; 
