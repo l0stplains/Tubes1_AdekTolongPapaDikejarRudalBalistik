@@ -5,7 +5,7 @@
 
 - [Overview](#overview)
     - [Author](#dibuat-oleh)
-    - [Algoritma Greedy yang diimplementasikan](#penjelasan)
+    - [Algoritma Greedy yang diimplementasikan](#penjelasan-algoritma-greedy-yang-diimplementasikan)
 - [Requirement](#requirement)
 - [Setup](#setup)
 
