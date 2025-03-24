@@ -1,5 +1,7 @@
 .private/
 src/*Bot/bin/
 src/*Bot/obj/
+src/alternate-bots/*Bot/bin/
+src/alternate-bots/*Bot/obj/
 src/Robocode.TankRoyale.BotApi/bin/
 src/Robocode.TankRoyale.BotApi/obj/

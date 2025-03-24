@@ -24,5 +24,13 @@ for /d %%D in ("..\*Bot") do (
         echo Copied %NUPKG% to %%D\packages\
     )
 )
+for /d %%D in ("..\alternate-bots\*Bot") do (
+    set DIRNAME=%%~nxD
+    if /i "!DIRNAME:~-3!"=="Bot" (
+        rmdir /s /q "%%D\packages"
+        xcopy /y "%NUPKG%" "%%D\packages\"
+        echo Copied %NUPKG% to %%D\packages\
+    )
+)
 
 echo Done.

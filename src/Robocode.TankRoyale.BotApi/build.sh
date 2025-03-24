@@ -21,5 +21,12 @@ for dir in ../*Bot/; do
         echo "Copied $nupkg to $dir/packages/"
     fi
 done
+for dir in ../alternate-bots/*Bot/; do
+    if [[ -d "$dir" && "$dir" =~ Bot$ ]]; then
+        rm -rf "$dir/packages"
+        cp -f "$nupkg" "$dir/packages/"
+        echo "Copied $nupkg to $dir/packages/"
+    fi
+done
 
 echo "Done."

@@ -1,0 +1,23 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Launch DantolBot",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build DantolBot",
+			"program": "${workspaceFolder}/src/DantolBot/bin/Debug/net8.0/DantolBot.dll",
+			"args": [],
+			"cwd": "${workspaceFolder}/src/DantolBot",
+			"stopAtEntry": false,
+			"console": "internalConsole",
+			"env": {
+				"SERVER_URL": "ws://localhost:7654",
+				"SERVER_SECRET": "0FdFQ3DEkhP7XdZBkQ/VwWpcHq988mVYSmdvjHJ6PC"
+			}
+		}
+	]
+}
