@@ -1,0 +1,10 @@
+{
+  "name": "CIV-1L Mauler",
+  "version": "1.0",
+  "authors": ["Refki Alfarizi", "Kenneth Ricardo C.", "Nadhif Radityo N."],
+  "description": "CIV-1L is a high-tech war machine that mirrors a regime where military power overshadows civilian rights.",
+  "homepage": "",
+  "countryCodes": ["id"],
+  "platform": ".Net 8.0",
+  "programmingLang": "C# 13.0"
+}

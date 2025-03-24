@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <RootNamespace>Tubes1_AdekTolongPapaDikejarRudalBalistik.FreedomBot</RootNamespace>
+        <RootNamespace>Tubes1_AdekTolongPapaDikejarRudalBalistik.CIV1L_MaulerBot</RootNamespace>
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>12.0</LangVersion>
