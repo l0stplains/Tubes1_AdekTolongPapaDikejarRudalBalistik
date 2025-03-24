@@ -48,8 +48,9 @@ namespace Tubes1_AdekTolongPapaDikejarRudalBalistik.CIV1L_MaulerBot
                 {
                     MaxSpeed = 5;
                     MaxTurnRate = Constants.MaxTurnRate;
-                    if(TurnNumber % 400 == 0){
-                        double distance = DistanceToWall() - 20;
+                    // a heuristic to avoid getting stuck (barely happens)
+                    if(TurnNumber % 240 == 0){
+                        double distance = DistanceToWall() - 80;
                         MaxSpeed = 8;
                         Forward(distance);
                     }
@@ -175,7 +176,7 @@ namespace Tubes1_AdekTolongPapaDikejarRudalBalistik.CIV1L_MaulerBot
         public override void OnHitBot(HitBotEvent e)
         {
             var bearing = BearingTo(e.X, e.Y);
-            if (bearing > -10 && bearing < 10)
+            if (bearing > -10 && bearing < 10 && e.Energy < Energy)
             {
                 Fire(3);
             } else {

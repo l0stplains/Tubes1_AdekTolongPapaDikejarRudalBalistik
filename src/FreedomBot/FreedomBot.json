@@ -1,0 +1,14 @@
+{
+    "name": "Freedom Bot",
+    "version": "1.0",
+    "authors": [
+        "Refki Alfarizi",
+        "Kenneth Ricardo C.",
+        "Nadhif Radityo N."
+    ],
+    "description": "FREEDOM GRAAHHH!!!",
+    "homepage": "",
+    "countryCodes": ["id"],
+    "platform": ".Net 8.0",
+    "programmingLang": "C# 13.0"
+}
