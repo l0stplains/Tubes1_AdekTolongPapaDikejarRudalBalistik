@@ -1776,20 +1776,50 @@ public class WallsStrategyBotTask(IBotHandle botHandle) : BotTask(botHandle) {
 public class CrowdSweepAttackStrategyBotTask(IBotHandle botHandle, CrowdObserverBotTask crowdObserver, PatternObserverBotTask patternObserver) : BotTask(botHandle) {
     private readonly CrowdObserverBotTask crowdObserver = crowdObserver;
     private readonly PatternObserverBotTask patternObserver = patternObserver;
-    int moveDirSign;
+    private int moveDirSign;
     protected override Task Initialize() {
         moveDirSign = 1;
         return Task.CompletedTask;
     }
     protected override async Task<bool> Step() {
+        FindMostCrowdedDirection(out double crowdedDirection, out double directionRange);
+        SetTurnRight(NormalizeBearing(crowdedDirection - Direction));
+        if(DistanceRemaining == 0) {
+            moveDirSign *= -1;
+            SetForward(250 * moveDirSign);
+        }
+        SetTurnRadarRight(360);
         await Go();
         return IsRunning;
+    }
+    protected override async Task OnScannedBot(ScannedBotEvent scannedBotEvent) {
+        double enemyBearing = scannedBotEvent.Direction;
+        double enemyDistance = DistanceTo(scannedBotEvent.X, scannedBotEvent.Y);
+        double fireDirection = NormalizeBearing(Direction + enemyBearing);
+        SetTurnGunRight(NormalizeBearing(fireDirection - GunDirection));
+        double firePower = enemyDistance < 200 ? 3 : (enemyDistance < 500 ? 2 : 1);
+        await Fire(firePower);
+    }
+    protected override async Task OnHitBot(HitBotEvent botHitBotEvent) {
+        moveDirSign *= -1;
+        SetBack(150 * moveDirSign);
+        await Go();
+    }
+    protected override async Task OnHitByBullet(HitByBulletEvent hitByBulletEvent) {
+        moveDirSign *= -1;
+        SetForward(250 * moveDirSign);
+        await Go();
+    }
+    private double NormalizeBearing(double angle) {
+        while(angle > 180) angle -= 360;
+        while(angle < -180) angle += 360;
+        return angle;
     }
     private void FindMostCrowdedDirection(out double crowdedDirection, out double directionRange) {
         double baseDirection = Direction;
         double directionSplit = 180;
         while(true) {
-            if(directionSplit == 22.5) {
+            if(directionSplit <= 22.5) {
                 crowdedDirection = baseDirection;
                 directionRange = directionSplit;
                 return;
@@ -1797,10 +1827,10 @@ public class CrowdSweepAttackStrategyBotTask(IBotHandle botHandle, CrowdObserver
             double crowdLeft = crowdObserver.GetCrowdValue(X, Y, baseDirection, baseDirection + directionSplit);
             double crowdRight = crowdObserver.GetCrowdValue(X, Y, baseDirection, baseDirection - directionSplit);
             if(crowdLeft >= crowdRight)
-                baseDirection -= directionSplit / 2;
+                baseDirection += directionSplit / 2;
             else
                 baseDirection -= directionSplit / 2;
-            directionSplit /= 4;
+            directionSplit /= 2;
         }
     }
 }
