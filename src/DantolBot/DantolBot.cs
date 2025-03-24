@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
@@ -77,7 +79,7 @@ public interface IBotHandle {
     public void AddConnectedEventListener(Action<ConnectedEvent> connectedEventListener);
     public void AddDisconnectedEventListener(Action<DisconnectedEvent> disconnectedEventListener);
     public void AddConnectionErrorEventListener(Action<ConnectionErrorEvent> connectionErrorEventListener);
-    public void AddGameStartedEventListener(Action<GameStartedEvent> gameStatedEventListener);
+    public void AddGameStartedEventListener(Action<GameStartedEvent> gameStartedEventListener);
     public void AddGameEndedEventListener(Action<GameEndedEvent> gameEndedEventListener);
     public void AddRoundStartedEventListener(Action<RoundStartedEvent> roundStartedEventListener);
     public void AddRoundEndedEventListener(Action<RoundEndedEvent> roundEndedEventListener);
@@ -99,7 +101,7 @@ public interface IBotHandle {
     public void RemoveConnectedEventListener(Action<ConnectedEvent> connectedEventListener);
     public void RemoveDisconnectedEventListener(Action<DisconnectedEvent> disconnectedEventListener);
     public void RemoveConnectionErrorEventListener(Action<ConnectionErrorEvent> connectionErrorEventListener);
-    public void RemoveGameStartedEventListener(Action<GameStartedEvent> gameStatedEventListener);
+    public void RemoveGameStartedEventListener(Action<GameStartedEvent> gameStartedEventListener);
     public void RemoveGameEndedEventListener(Action<GameEndedEvent> gameEndedEventListener);
     public void RemoveRoundStartedEventListener(Action<RoundStartedEvent> roundStartedEventListener);
     public void RemoveRoundEndedEventListener(Action<RoundEndedEvent> roundEndedEventListener);
@@ -153,7 +155,7 @@ public class NativeBotHandle(Bot botImpl) : IBotHandle {
     private readonly ConcurrentDictionary<Action<ConnectedEvent>, bool> _connectedEventListeners = [];
     private readonly ConcurrentDictionary<Action<DisconnectedEvent>, bool> _disconnectedEventListeners = [];
     private readonly ConcurrentDictionary<Action<ConnectionErrorEvent>, bool> _connectionErrorEventListeners = [];
-    private readonly ConcurrentDictionary<Action<GameStartedEvent>, bool> _gameStatedEventListeners = [];
+    private readonly ConcurrentDictionary<Action<GameStartedEvent>, bool> _gameStartedEventListeners = [];
     private readonly ConcurrentDictionary<Action<GameEndedEvent>, bool> _gameEndedEventListeners = [];
     private readonly ConcurrentDictionary<Action<RoundStartedEvent>, bool> _roundStartedEventListeners = [];
     private readonly ConcurrentDictionary<Action<RoundEndedEvent>, bool> _roundEndedEventListeners = [];
@@ -242,7 +244,7 @@ public class NativeBotHandle(Bot botImpl) : IBotHandle {
     public void AddConnectedEventListener(Action<ConnectedEvent> connectedEventListener) => _connectedEventListeners.TryAdd(connectedEventListener, true);
     public void AddDisconnectedEventListener(Action<DisconnectedEvent> disconnectedEventListener) => _disconnectedEventListeners.TryAdd(disconnectedEventListener, true);
     public void AddConnectionErrorEventListener(Action<ConnectionErrorEvent> connectionErrorEventListener) => _connectionErrorEventListeners.TryAdd(connectionErrorEventListener, true);
-    public void AddGameStartedEventListener(Action<GameStartedEvent> gameStatedEventListener) => _gameStatedEventListeners.TryAdd(gameStatedEventListener, true);
+    public void AddGameStartedEventListener(Action<GameStartedEvent> gameStartedEventListener) => _gameStartedEventListeners.TryAdd(gameStartedEventListener, true);
     public void AddGameEndedEventListener(Action<GameEndedEvent> gameEndedEventListener) => _gameEndedEventListeners.TryAdd(gameEndedEventListener, true);
     public void AddRoundStartedEventListener(Action<RoundStartedEvent> roundStartedEventListener) => _roundStartedEventListeners.TryAdd(roundStartedEventListener, true);
     public void AddRoundEndedEventListener(Action<RoundEndedEvent> roundEndedEventListener) => _roundEndedEventListeners.TryAdd(roundEndedEventListener, true);
@@ -264,7 +266,7 @@ public class NativeBotHandle(Bot botImpl) : IBotHandle {
     public void RemoveConnectedEventListener(Action<ConnectedEvent> connectedEventListener) => _connectedEventListeners.TryRemove(connectedEventListener, out _);
     public void RemoveDisconnectedEventListener(Action<DisconnectedEvent> disconnectedEventListener) => _disconnectedEventListeners.TryRemove(disconnectedEventListener, out _);
     public void RemoveConnectionErrorEventListener(Action<ConnectionErrorEvent> connectionErrorEventListener) => _connectionErrorEventListeners.TryRemove(connectionErrorEventListener, out _);
-    public void RemoveGameStartedEventListener(Action<GameStartedEvent> gameStatedEventListener) => _gameStatedEventListeners.TryRemove(gameStatedEventListener, out _);
+    public void RemoveGameStartedEventListener(Action<GameStartedEvent> gameStartedEventListener) => _gameStartedEventListeners.TryRemove(gameStartedEventListener, out _);
     public void RemoveGameEndedEventListener(Action<GameEndedEvent> gameEndedEventListener) => _gameEndedEventListeners.TryRemove(gameEndedEventListener, out _);
     public void RemoveRoundStartedEventListener(Action<RoundStartedEvent> roundStartedEventListener) => _roundStartedEventListeners.TryRemove(roundStartedEventListener, out _);
     public void RemoveRoundEndedEventListener(Action<RoundEndedEvent> roundEndedEventListener) => _roundEndedEventListeners.TryRemove(roundEndedEventListener, out _);
@@ -286,7 +288,7 @@ public class NativeBotHandle(Bot botImpl) : IBotHandle {
     public void OnConnected(ConnectedEvent connectedEvent) { foreach(var connectedEventListener in _connectedEventListeners.Keys) connectedEventListener(connectedEvent); }
     public void OnDisconnected(DisconnectedEvent disconnectedEvent) { foreach(var disconnectedEventListener in _disconnectedEventListeners.Keys) disconnectedEventListener(disconnectedEvent); }
     public void OnConnectionError(ConnectionErrorEvent connectionErrorEvent) { foreach(var connectionErrorEventListener in _connectionErrorEventListeners.Keys) connectionErrorEventListener(connectionErrorEvent); }
-    public void OnGameStarted(GameStartedEvent gameStatedEvent) { foreach(var gameStatedEventListener in _gameStatedEventListeners.Keys) gameStatedEventListener(gameStatedEvent); }
+    public void OnGameStarted(GameStartedEvent gameStartedEvent) { foreach(var gameStartedEventListener in _gameStartedEventListeners.Keys) gameStartedEventListener(gameStartedEvent); }
     public void OnGameEnded(GameEndedEvent gameEndedEvent) { foreach(var gameEndedEventListener in _gameEndedEventListeners.Keys) gameEndedEventListener(gameEndedEvent); }
     public void OnRoundStarted(RoundStartedEvent roundStartedEvent) { foreach(var roundStartedEventListener in _roundStartedEventListeners.Keys) roundStartedEventListener(roundStartedEvent); }
     public void OnRoundEnded(RoundEndedEvent roundEndedEvent) { foreach(var roundEndedEventListener in _roundEndedEventListeners.Keys) roundEndedEventListener(roundEndedEvent); }
@@ -433,7 +435,7 @@ public class DelegateBotHandle() : IBotHandle {
     public void AddConnectedEventListener(Action<ConnectedEvent> connectedEventListener) => Delegate!.AddConnectedEventListener(connectedEventListener);
     public void AddDisconnectedEventListener(Action<DisconnectedEvent> disconnectedEventListener) => Delegate!.AddDisconnectedEventListener(disconnectedEventListener);
     public void AddConnectionErrorEventListener(Action<ConnectionErrorEvent> connectionErrorEventListener) => Delegate!.AddConnectionErrorEventListener(connectionErrorEventListener);
-    public void AddGameStartedEventListener(Action<GameStartedEvent> gameStatedEventListener) => Delegate!.AddGameStartedEventListener(gameStatedEventListener);
+    public void AddGameStartedEventListener(Action<GameStartedEvent> gameStartedEventListener) => Delegate!.AddGameStartedEventListener(gameStartedEventListener);
     public void AddGameEndedEventListener(Action<GameEndedEvent> gameEndedEventListener) => Delegate!.AddGameEndedEventListener(gameEndedEventListener);
     public void AddRoundStartedEventListener(Action<RoundStartedEvent> roundStartedEventListener) => Delegate!.AddRoundStartedEventListener(roundStartedEventListener);
     public void AddRoundEndedEventListener(Action<RoundEndedEvent> roundEndedEventListener) => Delegate!.AddRoundEndedEventListener(roundEndedEventListener);
@@ -455,7 +457,7 @@ public class DelegateBotHandle() : IBotHandle {
     public void RemoveConnectedEventListener(Action<ConnectedEvent> connectedEventListener) => Delegate!.RemoveConnectedEventListener(connectedEventListener);
     public void RemoveDisconnectedEventListener(Action<DisconnectedEvent> disconnectedEventListener) => Delegate!.RemoveDisconnectedEventListener(disconnectedEventListener);
     public void RemoveConnectionErrorEventListener(Action<ConnectionErrorEvent> connectionErrorEventListener) => Delegate!.RemoveConnectionErrorEventListener(connectionErrorEventListener);
-    public void RemoveGameStartedEventListener(Action<GameStartedEvent> gameStatedEventListener) => Delegate!.RemoveGameStartedEventListener(gameStatedEventListener);
+    public void RemoveGameStartedEventListener(Action<GameStartedEvent> gameStartedEventListener) => Delegate!.RemoveGameStartedEventListener(gameStartedEventListener);
     public void RemoveGameEndedEventListener(Action<GameEndedEvent> gameEndedEventListener) => Delegate!.RemoveGameEndedEventListener(gameEndedEventListener);
     public void RemoveRoundStartedEventListener(Action<RoundStartedEvent> roundStartedEventListener) => Delegate!.RemoveRoundStartedEventListener(roundStartedEventListener);
     public void RemoveRoundEndedEventListener(Action<RoundEndedEvent> roundEndedEventListener) => Delegate!.RemoveRoundEndedEventListener(roundEndedEventListener);
@@ -510,7 +512,7 @@ public abstract class BotTask : IBotHandle {
     private readonly ConcurrentDictionary<Func<ConnectedEvent, Task>, bool> _connectedEventListeners = [];
     private readonly ConcurrentDictionary<Func<DisconnectedEvent, Task>, bool> _disconnectedEventListeners = [];
     private readonly ConcurrentDictionary<Func<ConnectionErrorEvent, Task>, bool> _connectionErrorEventListeners = [];
-    private readonly ConcurrentDictionary<Func<GameStartedEvent, Task>, bool> _gameStatedEventListeners = [];
+    private readonly ConcurrentDictionary<Func<GameStartedEvent, Task>, bool> _gameStartedEventListeners = [];
     private readonly ConcurrentDictionary<Func<GameEndedEvent, Task>, bool> _gameEndedEventListeners = [];
     private readonly ConcurrentDictionary<Func<RoundStartedEvent, Task>, bool> _roundStartedEventListeners = [];
     private readonly ConcurrentDictionary<Func<RoundEndedEvent, Task>, bool> _roundEndedEventListeners = [];
@@ -532,7 +534,7 @@ public abstract class BotTask : IBotHandle {
     private readonly Action<ConnectedEvent> _connectedEventAsyncHandler;
     private readonly Action<DisconnectedEvent> _disconnectedEventAsyncHandler;
     private readonly Action<ConnectionErrorEvent> _connectionErrorEventAsyncHandler;
-    private readonly Action<GameStartedEvent> _gameStatedEventAsyncHandler;
+    private readonly Action<GameStartedEvent> _gameStartedEventAsyncHandler;
     private readonly Action<GameEndedEvent> _gameEndedEventAsyncHandler;
     private readonly Action<RoundStartedEvent> _roundStartedEventAsyncHandler;
     private readonly Action<RoundEndedEvent> _roundEndedEventAsyncHandler;
@@ -556,7 +558,7 @@ public abstract class BotTask : IBotHandle {
         _connectedEventAsyncHandler = e => { foreach(var connectedEventListener in _connectedEventListeners.Keys) _eventTasks.TryAdd(connectedEventListener(e), true); };
         _disconnectedEventAsyncHandler = e => { foreach(var disconnectedEventListener in _disconnectedEventListeners.Keys) _eventTasks.TryAdd(disconnectedEventListener(e), true); };
         _connectionErrorEventAsyncHandler = e => { foreach(var connectionErrorEventListener in _connectionErrorEventListeners.Keys) _eventTasks.TryAdd(connectionErrorEventListener(e), true); };
-        _gameStatedEventAsyncHandler = e => { foreach(var gameStatedEventListener in _gameStatedEventListeners.Keys) _eventTasks.TryAdd(gameStatedEventListener(e), true); };
+        _gameStartedEventAsyncHandler = e => { foreach(var gameStartedEventListener in _gameStartedEventListeners.Keys) _eventTasks.TryAdd(gameStartedEventListener(e), true); };
         _gameEndedEventAsyncHandler = e => { foreach(var gameEndedEventListener in _gameEndedEventListeners.Keys) _eventTasks.TryAdd(gameEndedEventListener(e), true); };
         _roundStartedEventAsyncHandler = e => { foreach(var roundStartedEventListener in _roundStartedEventListeners.Keys) _eventTasks.TryAdd(roundStartedEventListener(e), true); };
         _roundEndedEventAsyncHandler = e => { foreach(var roundEndedEventListener in _roundEndedEventListeners.Keys) _eventTasks.TryAdd(roundEndedEventListener(e), true); };
@@ -581,7 +583,7 @@ public abstract class BotTask : IBotHandle {
         AddConnectedEventListener(_connectedEventAsyncHandler);
         AddDisconnectedEventListener(_disconnectedEventAsyncHandler);
         AddConnectionErrorEventListener(_connectionErrorEventAsyncHandler);
-        AddGameStartedEventListener(_gameStatedEventAsyncHandler);
+        AddGameStartedEventListener(_gameStartedEventAsyncHandler);
         AddGameEndedEventListener(_gameEndedEventAsyncHandler);
         AddRoundStartedEventListener(_roundStartedEventAsyncHandler);
         AddRoundEndedEventListener(_roundEndedEventAsyncHandler);
@@ -654,7 +656,7 @@ public abstract class BotTask : IBotHandle {
         RemoveConnectedEventListener(_connectedEventAsyncHandler);
         RemoveDisconnectedEventListener(_disconnectedEventAsyncHandler);
         RemoveConnectionErrorEventListener(_connectionErrorEventAsyncHandler);
-        RemoveGameStartedEventListener(_gameStatedEventAsyncHandler);
+        RemoveGameStartedEventListener(_gameStartedEventAsyncHandler);
         RemoveGameEndedEventListener(_gameEndedEventAsyncHandler);
         RemoveRoundStartedEventListener(_roundStartedEventAsyncHandler);
         RemoveRoundEndedEventListener(_roundEndedEventAsyncHandler);
@@ -683,7 +685,7 @@ public abstract class BotTask : IBotHandle {
     protected virtual Task OnConnected(ConnectedEvent connectedEvent) { return Task.CompletedTask; }
     protected virtual Task OnDisconnected(DisconnectedEvent disconnectedEvent) { return Task.CompletedTask; }
     protected virtual Task OnConnectionError(ConnectionErrorEvent connectionErrorEvent) { return Task.CompletedTask; }
-    protected virtual Task OnGameStarted(GameStartedEvent gameStatedEvent) { return Task.CompletedTask; }
+    protected virtual Task OnGameStarted(GameStartedEvent gameStartedEvent) { return Task.CompletedTask; }
     protected virtual Task OnGameEnded(GameEndedEvent gameEndedEvent) { return Task.CompletedTask; }
     protected virtual Task OnRoundStarted(RoundStartedEvent roundStartedEvent) { return Task.CompletedTask; }
     protected virtual Task OnRoundEnded(RoundEndedEvent roundEndedEvent) { return Task.CompletedTask; }
@@ -779,7 +781,7 @@ public abstract class BotTask : IBotHandle {
     public void AddConnectedEventListener(Func<ConnectedEvent, Task> connectedEventListener) => _connectedEventListeners.TryAdd(connectedEventListener, true);
     public void AddDisconnectedEventListener(Func<DisconnectedEvent, Task> disconnectedEventListener) => _disconnectedEventListeners.TryAdd(disconnectedEventListener, true);
     public void AddConnectionErrorEventListener(Func<ConnectionErrorEvent, Task> connectionErrorEventListener) => _connectionErrorEventListeners.TryAdd(connectionErrorEventListener, true);
-    public void AddGameStartedEventListener(Func<GameStartedEvent, Task> gameStatedEventListener) => _gameStatedEventListeners.TryAdd(gameStatedEventListener, true);
+    public void AddGameStartedEventListener(Func<GameStartedEvent, Task> gameStartedEventListener) => _gameStartedEventListeners.TryAdd(gameStartedEventListener, true);
     public void AddGameEndedEventListener(Func<GameEndedEvent, Task> gameEndedEventListener) => _gameEndedEventListeners.TryAdd(gameEndedEventListener, true);
     public void AddRoundStartedEventListener(Func<RoundStartedEvent, Task> roundStartedEventListener) => _roundStartedEventListeners.TryAdd(roundStartedEventListener, true);
     public void AddRoundEndedEventListener(Func<RoundEndedEvent, Task> roundEndedEventListener) => _roundEndedEventListeners.TryAdd(roundEndedEventListener, true);
@@ -801,7 +803,7 @@ public abstract class BotTask : IBotHandle {
     public void RemoveConnectedEventListener(Func<ConnectedEvent, Task> connectedEventListener) => _connectedEventListeners.TryRemove(connectedEventListener, out _);
     public void RemoveDisconnectedEventListener(Func<DisconnectedEvent, Task> disconnectedEventListener) => _disconnectedEventListeners.TryRemove(disconnectedEventListener, out _);
     public void RemoveConnectionErrorEventListener(Func<ConnectionErrorEvent, Task> connectionErrorEventListener) => _connectionErrorEventListeners.TryRemove(connectionErrorEventListener, out _);
-    public void RemoveGameStartedEventListener(Func<GameStartedEvent, Task> gameStatedEventListener) => _gameStatedEventListeners.TryRemove(gameStatedEventListener, out _);
+    public void RemoveGameStartedEventListener(Func<GameStartedEvent, Task> gameStartedEventListener) => _gameStartedEventListeners.TryRemove(gameStartedEventListener, out _);
     public void RemoveGameEndedEventListener(Func<GameEndedEvent, Task> gameEndedEventListener) => _gameEndedEventListeners.TryRemove(gameEndedEventListener, out _);
     public void RemoveRoundStartedEventListener(Func<RoundStartedEvent, Task> roundStartedEventListener) => _roundStartedEventListeners.TryRemove(roundStartedEventListener, out _);
     public void RemoveRoundEndedEventListener(Func<RoundEndedEvent, Task> roundEndedEventListener) => _roundEndedEventListeners.TryRemove(roundEndedEventListener, out _);
@@ -823,7 +825,7 @@ public abstract class BotTask : IBotHandle {
     public void AddConnectedEventListener(Action<ConnectedEvent> connectedEventListener) => _botHandle.AddConnectedEventListener(connectedEventListener);
     public void AddDisconnectedEventListener(Action<DisconnectedEvent> disconnectedEventListener) => _botHandle.AddDisconnectedEventListener(disconnectedEventListener);
     public void AddConnectionErrorEventListener(Action<ConnectionErrorEvent> connectionErrorEventListener) => _botHandle.AddConnectionErrorEventListener(connectionErrorEventListener);
-    public void AddGameStartedEventListener(Action<GameStartedEvent> gameStatedEventListener) => _botHandle.AddGameStartedEventListener(gameStatedEventListener);
+    public void AddGameStartedEventListener(Action<GameStartedEvent> gameStartedEventListener) => _botHandle.AddGameStartedEventListener(gameStartedEventListener);
     public void AddGameEndedEventListener(Action<GameEndedEvent> gameEndedEventListener) => _botHandle.AddGameEndedEventListener(gameEndedEventListener);
     public void AddRoundStartedEventListener(Action<RoundStartedEvent> roundStartedEventListener) => _botHandle.AddRoundStartedEventListener(roundStartedEventListener);
     public void AddRoundEndedEventListener(Action<RoundEndedEvent> roundEndedEventListener) => _botHandle.AddRoundEndedEventListener(roundEndedEventListener);
@@ -845,7 +847,7 @@ public abstract class BotTask : IBotHandle {
     public void RemoveConnectedEventListener(Action<ConnectedEvent> connectedEventListener) => _botHandle.RemoveConnectedEventListener(connectedEventListener);
     public void RemoveDisconnectedEventListener(Action<DisconnectedEvent> disconnectedEventListener) => _botHandle.RemoveDisconnectedEventListener(disconnectedEventListener);
     public void RemoveConnectionErrorEventListener(Action<ConnectionErrorEvent> connectionErrorEventListener) => _botHandle.RemoveConnectionErrorEventListener(connectionErrorEventListener);
-    public void RemoveGameStartedEventListener(Action<GameStartedEvent> gameStatedEventListener) => _botHandle.RemoveGameStartedEventListener(gameStatedEventListener);
+    public void RemoveGameStartedEventListener(Action<GameStartedEvent> gameStartedEventListener) => _botHandle.RemoveGameStartedEventListener(gameStartedEventListener);
     public void RemoveGameEndedEventListener(Action<GameEndedEvent> gameEndedEventListener) => _botHandle.RemoveGameEndedEventListener(gameEndedEventListener);
     public void RemoveRoundStartedEventListener(Action<RoundStartedEvent> roundStartedEventListener) => _botHandle.RemoveRoundStartedEventListener(roundStartedEventListener);
     public void RemoveRoundEndedEventListener(Action<RoundEndedEvent> roundEndedEventListener) => _botHandle.RemoveRoundEndedEventListener(roundEndedEventListener);
@@ -952,7 +954,7 @@ public class RainbowColorBotTask(IBotHandle botHandle) : BotTask(botHandle) {
         ScanColor = ColorFromHSV(colorHue, 1d, 1d);
         TracksColor = ColorFromHSV(colorHue, 1d, 1d);
         GunColor = ColorFromHSV(colorHue, 1d, 1d);
-        await WaitFor(() => true);
+        await Go();
         return IsRunning;
     }
     private static Color ColorFromHSV(double hue, double saturation, double value) {
@@ -972,138 +974,527 @@ public class RainbowColorBotTask(IBotHandle botHandle) : BotTask(botHandle) {
         };
     }
 }
-public class CornerStrategyBotTask(IBotHandle botHandle) : BotTask(botHandle) {
-    private int enemies;
-    private int corner = 90 * new Random().Next(4);
-    private bool stopWhenSeeEnemy;
-    private int gunIncrement;
-    protected override async Task Initialize() {
-        enemies = EnemyCount;
-        gunIncrement = 3;
-        stopWhenSeeEnemy = false;
-        await TurnLeft(CalcBearing(corner));
-        stopWhenSeeEnemy = true;
-        await Forward(5000);
-        await TurnRight(90);
-        await Forward(5000);
-        await TurnGunRight(90);
+public class BotStateSnapshot(
+    int id,
+    int snapshotTurn,
+    EnergyBotStateDiff? energy,
+    DirectionBotStateDiff? direction,
+    SpeedBotStateDiff? speed,
+    PositionBotStateDiff? position,
+    DeadBotStateDiff? dead
+) {
+    public readonly int id = id;
+    public readonly int snapshotTurn = snapshotTurn;
+    public readonly EnergyBotStateDiff? energy = energy;
+    public readonly DirectionBotStateDiff? direction = direction;
+    public readonly SpeedBotStateDiff? speed = speed;
+    public readonly PositionBotStateDiff? position = position;
+    public readonly DeadBotStateDiff? dead = dead;
+
+    public int EnergyTurn { get => energy?.turn ?? -1; }
+    public double Energy { get => energy?.energy ?? 0; }
+    public int DirectionTurn { get => direction?.turn ?? -1; }
+    public double Direction { get => direction?.direction ?? 0; }
+    public int SpeedTurn { get => speed?.turn ?? -1; }
+    public double Speed { get => speed?.speed ?? 0; }
+    public int PositionTurn { get => position?.turn ?? -1; }
+    public double PositionX { get => position?.positionX ?? 0; }
+    public double PositionY { get => position?.positionY ?? 0; }
+    public int DeadTurn { get => dead?.turn ?? -1; }
+    public bool Dead { get => dead?.dead ?? false; }
+}
+public class BotStateDiff(int turn) {
+    public readonly int turn = turn;
+}
+public class EnergyBotStateDiff(int turn, double energy) : BotStateDiff(turn) {
+    public readonly double energy = energy;
+}
+public class DirectionBotStateDiff(int turn, double direction) : BotStateDiff(turn) {
+    public readonly double direction = direction;
+}
+public class SpeedBotStateDiff(int turn, double speed) : BotStateDiff(turn) {
+    public readonly double speed = speed;
+}
+public class PositionBotStateDiff(int turn, double positionX, double positionY) : BotStateDiff(turn) {
+    public readonly double positionX = positionX;
+    public readonly double positionY = positionY;
+}
+public class DeadBotStateDiff(int turn, bool dead) : BotStateDiff(turn) {
+    public readonly bool dead = dead;
+}
+public class BotState {
+    public readonly int id;
+    public readonly int roundNumber;
+    protected readonly Func<int> getTurnNumber;
+    protected readonly List<BotStateDiff> diffs;
+    public readonly ReadOnlyCollection<BotStateDiff> Diffs;
+    public BotState(int id, int roundNumber, Func<int> getTurnNumber) {
+        this.id = id;
+        this.roundNumber = roundNumber;
+        this.getTurnNumber = getTurnNumber;
+        diffs = [];
+        Diffs = diffs.AsReadOnly();
     }
+    public void UpdateEnergy(double energy) {
+        diffs.Add(new EnergyBotStateDiff(getTurnNumber(), energy));
+    }
+    public void UpdateDirection(double direction) {
+        diffs.Add(new DirectionBotStateDiff(getTurnNumber(), direction));
+    }
+    public void UpdateSpeed(double speed) {
+        diffs.Add(new SpeedBotStateDiff(getTurnNumber(), speed));
+    }
+    public void UpdatePosition(double positionX, double positionY) {
+        diffs.Add(new PositionBotStateDiff(getTurnNumber(), positionX, positionY));
+    }
+    public void SetDead(bool dead) {
+        diffs.Add(new DeadBotStateDiff(getTurnNumber(), dead));
+    }
+
+    public BotStateSnapshot Snapshot() {
+        return Snapshot(getTurnNumber());
+    }
+    public BotStateSnapshot Snapshot(int snapshotTurn) {
+        return new BotStateSnapshot(
+            id,
+            snapshotTurn,
+            diffs.FindLast(d => d.turn <= snapshotTurn && d is EnergyBotStateDiff) as EnergyBotStateDiff,
+            diffs.FindLast(d => d.turn <= snapshotTurn && d is DirectionBotStateDiff) as DirectionBotStateDiff,
+            diffs.FindLast(d => d.turn <= snapshotTurn && d is SpeedBotStateDiff) as SpeedBotStateDiff,
+            diffs.FindLast(d => d.turn <= snapshotTurn && d is PositionBotStateDiff) as PositionBotStateDiff,
+            diffs.FindLast(d => d.turn <= snapshotTurn && d is DeadBotStateDiff) as DeadBotStateDiff
+        );
+    }
+}
+public class BotStateLoggingBotTask(IBotHandle botHandle) : BotTask(botHandle) {
+    private readonly Dictionary<int, Dictionary<int, BotState>> botStatesRounds = [];
+    public Dictionary<int, Dictionary<int, BotState>> BotStatesRounds { get => botStatesRounds; }
+    public Dictionary<int, BotState> BotStates { get => botStatesRounds[RoundNumber]; }
     protected override async Task<bool> Step() {
-        for(int i = 0; i < 30; i++)
-            await TurnGunRight(gunIncrement);
-        gunIncrement *= -1;
+        await Go();
         return IsRunning;
     }
-    protected override async Task OnScannedBot(ScannedBotEvent e) {
-        var distance = DistanceTo(e.X, e.Y);
-        if(!stopWhenSeeEnemy) {
-            await SmartFire(distance);
-            return;
-        }
-        await Stop();
-        await SmartFire(distance);
-        await Rescan();
-        await Resume();
+    protected override Task OnGameStarted(GameStartedEvent gameStartedEvent) {
+        botStatesRounds.Clear();
+        return Task.CompletedTask;
     }
-    private async Task SmartFire(double distance) {
-        if(distance > 200 || Energy < 15)
-            await Fire(1);
-        else if(distance > 50)
-            await Fire(2);
-        else
-            await Fire(3);
+    protected override Task OnRoundStarted(RoundStartedEvent roundStartedEvent) {
+        botStatesRounds[roundStartedEvent.RoundNumber] = [];
+        return Task.CompletedTask;
     }
-    protected override async Task OnDeath(DeathEvent e) {
-        if(enemies == 0)
-            return;
-        if(EnemyCount / (double) enemies >= .75) {
-            corner += 90;
-            corner %= 360;
+    protected override Task OnBotDeath(BotDeathEvent botDeathEvent) {
+        var botState = BotStates[botDeathEvent.VictimId];
+        botState.SetDead(true);
+        EmitBotStateUpdated(botState);
+        return Task.CompletedTask;
+    }
+    protected override Task OnHitBot(HitBotEvent botHitBotEvent) {
+        var botState = BotStates[botHitBotEvent.VictimId];
+        botState.UpdateEnergy(botHitBotEvent.Energy);
+        botState.UpdatePosition(botHitBotEvent.X, botHitBotEvent.Y);
+        EmitBotStateUpdated(botState);
+        return Task.CompletedTask;
+    }
+    protected override Task OnBulletHit(BulletHitBotEvent bulletHitBotEvent) {
+        var botState = BotStates[bulletHitBotEvent.VictimId];
+        var bullet = bulletHitBotEvent.Bullet;
+        var victimX = bullet.X + Math.Cos(bullet.Direction) * Constants.BoundingCircleRadius;
+        var victimY = bullet.Y + Math.Sin(bullet.Direction) * Constants.BoundingCircleRadius;
+        botState.UpdateEnergy(bulletHitBotEvent.Energy);
+        botState.UpdatePosition(victimX, victimY);
+        EmitBotStateUpdated(botState);
+        return Task.CompletedTask;
+    }
+    protected override Task OnScannedBot(ScannedBotEvent scannedBotEvent) {
+        var botState = BotStates[scannedBotEvent.ScannedBotId];
+        botState.UpdateEnergy(scannedBotEvent.Energy);
+        botState.UpdateDirection(scannedBotEvent.Direction);
+        botState.UpdateSpeed(scannedBotEvent.Speed);
+        botState.UpdatePosition(scannedBotEvent.X, scannedBotEvent.Y);
+        EmitBotStateUpdated(botState);
+        return Task.CompletedTask;
+    }
+    private readonly ConcurrentDictionary<WeakReference<BotStateUpdateConsumer>, bool> updateConsumerRefs = [];
+    private void EmitBotStateUpdated(BotState botState) {
+        foreach(var updateConsumerRef in updateConsumerRefs.Keys) {
+            if(!updateConsumerRef.TryGetTarget(out var updateConsumer)) {
+                updateConsumerRefs.TryRemove(updateConsumerRef, out _);
+                continue;
+            }
+            updateConsumer.Enqueue(botState);
         }
-        return;
+    }
+    public BotStateUpdateConsumer GetBotStatesUpdateConsumer() {
+        var consumer = new BotStateUpdateConsumer();
+        foreach(var botState in BotStates.Values)
+            consumer.Enqueue(botState);
+        updateConsumerRefs.TryAdd(new(consumer), true);
+        return consumer;
+    }
+    public class BotStateUpdateConsumer() : ConcurrentQueue<BotState>() {
     }
 }
-public class CrazyStrategyBotTask(IBotHandle botHandle) : BotTask(botHandle) {
-    private bool movingForward;
+public class FireIntent {
+    public readonly double Firepower;
+    public readonly int? TargetId;
+    public readonly double? TargetX;
+    public readonly double? TargetY;
+    public FireIntent(double firepower) {
+        Firepower = firepower;
+    }
+    public FireIntent(double firepower, int targetId) {
+        Firepower = firepower;
+        TargetId = targetId;
+    }
+    public FireIntent(double firepower, int targetId, double targetX, double targetY) {
+        Firepower = firepower;
+        TargetId = targetId;
+        TargetX = targetX;
+        TargetY = targetY;
+    }
+}
+public class IntentLoggingBotTask(IBotHandle botHandle) : BotTask(botHandle) {
+    private readonly Dictionary<int, List<FireIntentState>> fireIntentStatesRounds = [];
+    public Dictionary<int, List<FireIntentState>> FireIntentStatesRounds { get => fireIntentStatesRounds; }
+    public List<FireIntentState> FireIntentStates { get => fireIntentStatesRounds[RoundNumber]; }
     protected override async Task<bool> Step() {
-        SetForward(40000);
-        movingForward = true;
-        await TurnRight(90);
-        await TurnLeft(180);
-        await TurnRight(180);
+        await Go();
         return IsRunning;
     }
-    private void ReverseDirection() {
-        if(movingForward) {
-            SetBack(40000);
-            movingForward = false;
-        } else {
-            SetForward(40000);
-            movingForward = true;
+    protected override Task OnGameStarted(GameStartedEvent gameStartedEvent) {
+        fireIntentStatesRounds.Clear();
+        return Task.CompletedTask;
+    }
+    protected override Task OnRoundStarted(RoundStartedEvent roundStartedEvent) {
+        fireIntentStatesRounds[roundStartedEvent.RoundNumber] = [];
+        return Task.CompletedTask;
+    }
+    public bool SetIntent(FireIntent intent) {
+        if(!SetFire(intent.Firepower)) return false;
+        var intentState = new FireIntentState(intent, TurnNumber, X, Y, GunDirection);
+        FireIntentStates.Add(intentState);
+        return true;
+    }
+    public Task Intent(FireIntent intent) {
+        if(SetIntent(intent))
+            return Go();
+        return Task.CompletedTask;
+    }
+    protected override Task OnBulletFired(BulletFiredEvent bulletFiredEvent) {
+        var turnNumber = bulletFiredEvent.TurnNumber;
+        var bullet = bulletFiredEvent.Bullet;
+        foreach(var intentState in FireIntentStates) {
+            if(intentState._bulletId is not null) continue;
+            if(!intentState.EqualTo(turnNumber, bullet)) continue;
+            intentState._bulletId = bullet.BulletId;
+            break;
+        }
+        return Task.CompletedTask;
+    }
+    protected override Task OnBulletHitWall(BulletHitWallEvent bulletHitWallEvent) {
+        var turnNumber = bulletHitWallEvent.TurnNumber;
+        var bullet = bulletHitWallEvent.Bullet;
+        foreach(var intentState in FireIntentStates) {
+            if(!intentState.EqualTo(turnNumber, bullet)) continue;
+            intentState._bulletId ??= bullet.BulletId;
+            intentState._resolution = new FireIntentHitWallResolution(
+                turnNumber,
+                bullet.X,
+                bullet.Y
+            );
+        }
+        return Task.CompletedTask;
+    }
+    protected override Task OnBulletHit(BulletHitBotEvent bulletHitBotEvent) {
+        var turnNumber = bulletHitBotEvent.TurnNumber;
+        var bullet = bulletHitBotEvent.Bullet;
+        foreach(var intentState in FireIntentStates) {
+            if(!intentState.EqualTo(turnNumber, bullet)) continue;
+            intentState._bulletId ??= bullet.BulletId;
+            intentState._resolution = new FireIntentHitBotResolution(
+                turnNumber,
+                bullet.X,
+                bullet.Y,
+                bulletHitBotEvent.VictimId,
+                bulletHitBotEvent.Energy,
+                bulletHitBotEvent.Damage
+            );
+        }
+        return Task.CompletedTask;
+    }
+    protected override Task OnBulletHitBullet(BulletHitBulletEvent bulletHitBulletEvent) {
+        var turnNumber = bulletHitBulletEvent.TurnNumber;
+        var bullet = bulletHitBulletEvent.Bullet;
+        var hitBullet = bulletHitBulletEvent.HitBullet;
+        foreach(var intentState in FireIntentStates) {
+            if(!intentState.EqualTo(turnNumber, bullet)) continue;
+            intentState._bulletId ??= bullet.BulletId;
+            intentState._resolution = new FireIntentHitBulletResolution(
+                turnNumber,
+                bullet.X,
+                bullet.Y,
+                hitBullet.BulletId,
+                hitBullet.OwnerId,
+                hitBullet.Power,
+                hitBullet.X,
+                hitBullet.Y,
+                hitBullet.Direction,
+                hitBullet.Speed,
+                hitBullet.Color
+            );
+        }
+        return Task.CompletedTask;
+    }
+    public class FireIntentState(
+        FireIntent intent,
+        int turnNumber,
+        double startPositionX,
+        double startPositionY,
+        double direction
+    ) {
+        public readonly FireIntent Intent = intent;
+        public readonly int TurnNumber = turnNumber;
+        public readonly double StartPositionX = startPositionX;
+        public readonly double StartPositionY = startPositionY;
+        public readonly double Direction = direction;
+        internal int? _bulletId;
+        public int BulletId { get => _bulletId ?? throw new NullReferenceException(); }
+        internal FireIntentResolution? _resolution;
+        public FireIntentResolution? Resolution { get => _resolution; }
+        public bool EqualTo(int turnNumber, BulletState bullet) {
+            if(_bulletId is not null)
+                return bullet.BulletId == _bulletId;
+            if(Math.Abs(bullet.Direction - Direction) > 0.01) return false;
+            // Assumes speed is constant.
+            var elapsedTurn = turnNumber - TurnNumber;
+            var bulletStartPositionX = bullet.X - Math.Cos(bullet.Direction) * bullet.Speed * elapsedTurn;
+            var bulletStartPositionY = bullet.Y - Math.Sin(bullet.Direction) * bullet.Speed * elapsedTurn;
+            if(Math.Abs(bulletStartPositionX - StartPositionX) > 0.01) return false;
+            if(Math.Abs(bulletStartPositionY - StartPositionY) > 0.01) return false;
+            return true;
         }
     }
-    protected override async Task OnScannedBot(ScannedBotEvent e) {
-        await Fire(1);
+    public class FireIntentResolution(
+        int turnNumber,
+        double endPositionX,
+        double endPositionY
+    ) {
+        public readonly int TurnNumber = turnNumber;
+        public readonly double EndPositionX = endPositionX;
+        public readonly double EndPositionY = endPositionY;
     }
-    protected override async Task OnHitWall(HitWallEvent e) {
-        ReverseDirection();
+    public class FireIntentHitWallResolution(
+        int turnNumber,
+        double endPositionX,
+        double endPositionY
+    ) : FireIntentResolution(
+        turnNumber,
+        endPositionX,
+        endPositionY
+    ) {
     }
-    protected override async Task OnHitBot(HitBotEvent e) {
-        if(e.IsRammed) {
-            ReverseDirection();
-        }
+    public class FireIntentHitBotResolution(
+        int turnNumber,
+        double endPositionX,
+        double endPositionY,
+        int victimId,
+        double victimEnergy,
+        double victimDamage
+    ) : FireIntentResolution(
+        turnNumber,
+        endPositionX,
+        endPositionY
+    ) {
+        public readonly int VictimId = victimId;
+        public readonly double VictimEnergy = victimEnergy;
+        public readonly double VictimDamage = victimDamage;
+    }
+    public class FireIntentHitBulletResolution(
+        int turnNumber,
+        double endPositionX,
+        double endPositionY,
+        int hitBulletId,
+        int hitBulletOwnerId,
+        double hitBulletPower,
+        double hitBulletX,
+        double hitBulletY,
+        double hitBulletDirection,
+        double hitBulletSpeed,
+        Color? hitBulletColor
+    ) : FireIntentResolution(
+        turnNumber,
+        endPositionX,
+        endPositionY
+    ) {
+        public readonly int HitBulletId = hitBulletId;
+        public readonly int HitBulletOwnerId = hitBulletOwnerId;
+        public readonly double HitBulletPower = hitBulletPower;
+        public readonly double HitBulletX = hitBulletX;
+        public readonly double HitBulletY = hitBulletY;
+        public readonly double HitBulletDirection = hitBulletDirection;
+        public readonly double HitBulletSpeed = hitBulletSpeed;
+        public readonly Color? HitBulletColor = hitBulletColor;
     }
 }
-public class SpinStrategyBotTask(IBotHandle botHandle) : BotTask(botHandle) {
-    protected async override Task<bool> Step() {
-        SetTurnLeft(10000);
-        MaxSpeed = 5;
-        await Forward(10000);
-        return IsRunning;
-    }
-    protected override async Task OnScannedBot(ScannedBotEvent scannedBotEvent) {
-        await Fire(3);
-    }
-    protected override async Task OnHitBot(HitBotEvent botHitBotEvent) {
-        var bearing = BearingTo(botHitBotEvent.X, botHitBotEvent.Y);
-        if(bearing > -10 && bearing < 10)
-            await Fire(3);
-        if(botHitBotEvent.IsRammed)
-            await TurnLeft(10);
-    }
-}
-public class WallsStrategyBotTash(IBotHandle botHandle) : BotTask(botHandle) {
-    bool peek;
-    double moveAmount;
-    protected override async Task Initialize() {
-        moveAmount = Math.Max(ArenaWidth, ArenaHeight);
-        peek = false;
-        await TurnRight(Direction % 90);
-        await Forward(moveAmount);
-        peek = true;
-        await TurnGunRight(90);
-        await TurnRight(90);
-    }
+public class CrowdObserverBotTask(IBotHandle botHandle, BotStateLoggingBotTask botStateLogging, IntentLoggingBotTask intentLogging) : BotTask(botHandle) {
+    private readonly BotStateLoggingBotTask botStateLogging = botStateLogging;
+    private readonly IntentLoggingBotTask intentLogging = intentLogging;
+    private readonly BotStateLoggingBotTask.BotStateUpdateConsumer botStateUpdateConsumer = botStateLogging.GetBotStatesUpdateConsumer();
+    const double densityResolution = 1.5;
+    const double sigma = 50;
+    const double lambda = 1.2;
+    public double[,] densityMap;
+    private Bitmap debugBitmap;
     protected override async Task<bool> Step() {
-        peek = true;
-        await Forward(moveAmount);
-        peek = false;
-        await TurnRight(90);
+        for(int x = 0; x < densityMap.GetLength(0); x++) {
+            for(int y = 0; y < densityMap.GetLength(1); y++) {
+                var density = densityMap[x, y];
+                debugBitmap.SetPixel(x, y, Color.FromArgb(128, ValueToColor(density)));
+            }
+        }
+        Graphics.DrawImage(debugBitmap, 0, 0, ArenaWidth, ArenaHeight);
+        await Go();
         return IsRunning;
     }
-    protected override async Task OnHitBot(HitBotEvent e) {
-        var bearing = BearingTo(e.X, e.Y);
-        if(bearing > -90 && bearing < 90)
-            await Back(100);
-        else
-            await Forward(100);
+    public double GetTotalCrowdedValue() {
+        double sum = 0;
+        for(int x = 0; x < densityMap.GetLength(0); x++) {
+            for(int y = 0; y < densityMap.GetLength(1); y++) {
+                sum += densityMap[x, y];
+            }
+        }
+        return sum;
     }
-    protected override async Task OnScannedBot(ScannedBotEvent e) {
-        SetFire(2);
-        if(peek)
-            await Rescan();
+    public double GetCrowdValue(double positionX, double positionY, double directionStart, double directionEnd) {
+        var startX = (int) Math.Floor(positionX * densityResolution);
+        var startY = (int) Math.Floor(positionY * densityResolution);
+        return SumSector(densityMap, startX, startY, directionStart, directionEnd);
+    }
+    protected override Task OnRoundStarted(RoundStartedEvent roundStartedEvent) {
+        var width = (int) Math.Floor(ArenaWidth * densityResolution);
+        var height = (int) Math.Floor(ArenaHeight * densityResolution);
+        densityMap = new double[width, height];
+        debugBitmap = new(width, height);
+        return Task.CompletedTask;
+    }
+    protected override async Task OnTick(TickEvent tickEvent) {
+        var currentTurn = TurnNumber;
+        var snapshots = new List<BotStateSnapshot>();
+        while(botStateUpdateConsumer.TryDequeue(out var botState))
+            snapshots.Add(botState.Snapshot());
+        await Task.Run(() => {
+            DrawTemporalDecay();
+            foreach(var snapshot in snapshots) {
+                if(!snapshot.Dead)
+                    DrawDensityRegion(snapshot.PositionX, snapshot.PositionY, Math.Exp(-(currentTurn - snapshot.PositionTurn) / 30));
+                else
+                    DrawDensityRegion(snapshot.PositionX, snapshot.PositionY, -Math.Exp(-(currentTurn - snapshot.DeadTurn) / 30));
+            }
+        });
+    }
+    private void DrawDensityRegion(double positionX, double positionY, double intensity) {
+        var radius = Constants.BoundingCircleRadius;
+        positionX *= densityResolution;
+        positionY *= densityResolution;
+        for(int x = 0; x < densityMap.GetLength(0); x++) {
+            for(int y = 0; y < densityMap.GetLength(1); y++) {
+                var distance = Math.Sqrt((x - positionX) * (x - positionX) + (y - positionY) * (y - positionY));
+                var density = distance <= radius ? 1 : Math.Exp(-((distance - radius) * (distance - radius)) / (2 * sigma * sigma));
+                densityMap[x, y] = intensity >= 0 ? Math.Max(densityMap[x, y], density * intensity) : Math.Min(densityMap[x, y], (1 - density) * -intensity);
+            }
+        }
+    }
+    private void DrawTemporalDecay() {
+        for(int x = 0; x < densityMap.GetLength(0); x++) {
+            for(int y = 0; y < densityMap.GetLength(1); y++) {
+                densityMap[x, y] *= Math.Exp(-lambda);
+            }
+        }
+    }
+    public static double SumSector(double[,] grid, int startX, int startY, double directionStart, double directionEnd) {
+        var width = grid.GetLength(0);
+        var height = grid.GetLength(1);
+        var sum = 0d;
+        var visited = new HashSet<(int, int)>();
+        directionStart = ((directionStart % 360) + 360) % 360;
+        directionEnd = ((directionEnd % 360) + 360) % 360;
+        if(directionEnd < directionStart) directionEnd += 360;
+        var startBoundary = BresenhamLine(startX, startY, directionStart, width, height);
+        var endBoundary = BresenhamLine(startX, startY, directionEnd, width, height);
+        var sectorBoundary = new HashSet<(int, int)>(startBoundary);
+        sectorBoundary.UnionWith(endBoundary);
+        var queue = new Queue<(int, int)>();
+        queue.Enqueue((startX, startY));
+        visited.Add((startX, startY));
+        while(queue.Count > 0) {
+            var (x, y) = queue.Dequeue();
+            sum += grid[x, y];
+            foreach(var (dx, dy) in new[] { (1, 0), (-1, 0), (0, 1), (0, -1) }) {
+                int newX = x + dx;
+                int newY = y + dy;
+                if(newX < 0 || newY < 0 || newX >= width || newY >= height) continue;
+                    var newPos = (newX, newY);
+                if(visited.Contains(newPos)) continue;
+                if(!IsInsideSector(startX, startY, newX, newY, directionStart, directionEnd)) continue;
+                queue.Enqueue(newPos);
+                visited.Add(newPos);
+            }
+        }
+        return sum;
+    }
+    private static HashSet<(int, int)> BresenhamLine(int x0, int y0, double angle, int width, int height) {
+        var points = new HashSet<(int, int)>();
+        var rad = angle * Math.PI / 180.0;
+        var dx = Math.Cos(rad);
+        var dy = Math.Sin(rad);
+        var x = x0;
+        var y = y0;
+        for(int i = 1; i < Math.Max(width, height); i++)  {
+            int newX = (int)Math.Round(x0 + dx * i);
+            int newY = (int)Math.Round(y0 + dy * i);
+            if(newX < 0 || newY < 0 || newX >= width || newY >= height) break;
+            points.Add((newX, newY));
+        }
+        return points;
+    }
+    private static bool IsInsideSector(int cx, int cy, int px, int py, double startAngle, double endAngle) {
+        double angle = Math.Atan2(py - cy, px - cx) * 180.0 / Math.PI;
+        angle = (angle + 360) % 360;
+        if(endAngle < startAngle)
+            return angle >= startAngle || angle <= endAngle;
+        return angle >= startAngle && angle <= endAngle;
+    }
+    private static Color ValueToColor(double value) {
+        value = Math.Max(0, Math.Min(1, value));
+        int hue = (int)(240 - (value * 240));
+        return ColorFromHSV(hue, 1.0, 0.5);
+    }
+    private static Color ColorFromHSV(double hue, double saturation, double value) {
+        int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+        double f = hue / 60 - Math.Floor(hue / 60);
+        double v = value * 255;
+        double p = v * (1 - saturation);
+        double q = v * (1 - f * saturation);
+        double t = v * (1 - (1 - f) * saturation);
+        return hi switch {
+            0 => Color.FromArgb(255, (int) v, (int) t, (int) p),
+            1 => Color.FromArgb(255, (int) q, (int) v, (int) p),
+            2 => Color.FromArgb(255, (int) p, (int) v, (int) t),
+            3 => Color.FromArgb(255, (int) p, (int) q, (int) v),
+            4 => Color.FromArgb(255, (int) t, (int) p, (int) v),
+            _ => Color.FromArgb(255, (int) v, (int) p, (int) q),
+        };
     }
 }
+public class PatternObserverBotTask(IBotHandle botHandle, BotStateLoggingBotTask botStateLogging) : BotTask(botHandle) {
+    private readonly BotStateLoggingBotTask botStateLogging = botStateLogging;
+    protected override async Task<bool> Step() {
+        // Not implemented lol.
+        await Go();
+        return IsRunning;
+    }
+}
+
 public class StrategySwitcherBotTask(IBotHandle botHandle, Func<IBotHandle, BotTask>[] strategyConstructors) : BotTask(botHandle) {
     protected readonly (BotTask, DelegateBotHandle)[] strategies = [..strategyConstructors.Select(c => {
         var botHandle = new DelegateBotHandle();
@@ -1112,9 +1503,10 @@ public class StrategySwitcherBotTask(IBotHandle botHandle, Func<IBotHandle, BotT
     protected readonly List<int> indices = [];
     protected int strategyIndex = -1;
     protected bool switchingStrategy;
-    protected override async Task Initialize() {
+    protected override Task Initialize() {
         for(int i = 0; i < strategies.Length; i++)
             indices.Add(i);
+        return Task.CompletedTask;
     }
     protected override async Task<bool> Step() {
         if(strategyIndex == -1) {
@@ -1249,6 +1641,169 @@ public class StrategySwitchBulletDamage : StrategySwitcherBotTask {
         return indices.Last();
     }
 }
+public class CornerStrategyBotTask(IBotHandle botHandle) : BotTask(botHandle) {
+    private int enemies;
+    private int corner = 90 * new Random().Next(4);
+    private bool stopWhenSeeEnemy;
+    private int gunIncrement;
+    protected override async Task Initialize() {
+        enemies = EnemyCount;
+        gunIncrement = 3;
+        stopWhenSeeEnemy = false;
+        await TurnLeft(CalcBearing(corner));
+        stopWhenSeeEnemy = true;
+        await Forward(5000);
+        await TurnRight(90);
+        await Forward(5000);
+        await TurnGunRight(90);
+    }
+    protected override async Task<bool> Step() {
+        for(int i = 0; i < 30; i++)
+            await TurnGunRight(gunIncrement);
+        gunIncrement *= -1;
+        return IsRunning;
+    }
+    protected override async Task OnScannedBot(ScannedBotEvent e) {
+        var distance = DistanceTo(e.X, e.Y);
+        if(!stopWhenSeeEnemy) {
+            await SmartFire(distance);
+            return;
+        }
+        await Stop();
+        await SmartFire(distance);
+        await Rescan();
+        await Resume();
+    }
+    private async Task SmartFire(double distance) {
+        if(distance > 200 || Energy < 15)
+            await Fire(1);
+        else if(distance > 50)
+            await Fire(2);
+        else
+            await Fire(3);
+    }
+    protected override async Task OnDeath(DeathEvent e) {
+        if(enemies == 0)
+            return;
+        if(EnemyCount / (double) enemies >= .75) {
+            corner += 90;
+            corner %= 360;
+        }
+        return;
+    }
+}
+public class CrazyStrategyBotTask(IBotHandle botHandle) : BotTask(botHandle) {
+    private bool movingForward;
+    protected override async Task<bool> Step() {
+        SetForward(40000);
+        movingForward = true;
+        await TurnRight(90);
+        await TurnLeft(180);
+        await TurnRight(180);
+        return IsRunning;
+    }
+    private void ReverseDirection() {
+        if(movingForward) {
+            SetBack(40000);
+            movingForward = false;
+        } else {
+            SetForward(40000);
+            movingForward = true;
+        }
+    }
+    protected override async Task OnScannedBot(ScannedBotEvent e) {
+        await Fire(1);
+    }
+    protected override async Task OnHitWall(HitWallEvent e) {
+        ReverseDirection();
+    }
+    protected override async Task OnHitBot(HitBotEvent e) {
+        if(e.IsRammed) {
+            ReverseDirection();
+        }
+    }
+}
+public class SpinStrategyBotTask(IBotHandle botHandle) : BotTask(botHandle) {
+    protected async override Task<bool> Step() {
+        SetTurnLeft(10000);
+        MaxSpeed = 5;
+        await Forward(10000);
+        return IsRunning;
+    }
+    protected override async Task OnScannedBot(ScannedBotEvent scannedBotEvent) {
+        await Fire(3);
+    }
+    protected override async Task OnHitBot(HitBotEvent botHitBotEvent) {
+        var bearing = BearingTo(botHitBotEvent.X, botHitBotEvent.Y);
+        if(bearing > -10 && bearing < 10)
+            await Fire(3);
+        if(botHitBotEvent.IsRammed)
+            await TurnLeft(10);
+    }
+}
+public class WallsStrategyBotTask(IBotHandle botHandle) : BotTask(botHandle) {
+    bool peek;
+    double moveAmount;
+    protected override async Task Initialize() {
+        moveAmount = Math.Max(ArenaWidth, ArenaHeight);
+        peek = false;
+        await TurnRight(Direction % 90);
+        await Forward(moveAmount);
+        peek = true;
+        await TurnGunRight(90);
+        await TurnRight(90);
+    }
+    protected override async Task<bool> Step() {
+        peek = true;
+        await Forward(moveAmount);
+        peek = false;
+        await TurnRight(90);
+        return IsRunning;
+    }
+    protected override async Task OnHitBot(HitBotEvent e) {
+        var bearing = BearingTo(e.X, e.Y);
+        if(bearing > -90 && bearing < 90)
+            await Back(100);
+        else
+            await Forward(100);
+    }
+    protected override async Task OnScannedBot(ScannedBotEvent e) {
+        SetFire(2);
+        if(peek)
+            await Rescan();
+    }
+}
+public class CrowdSweepAttackStrategyBotTask(IBotHandle botHandle, CrowdObserverBotTask crowdObserver, PatternObserverBotTask patternObserver) : BotTask(botHandle) {
+    private readonly CrowdObserverBotTask crowdObserver = crowdObserver;
+    private readonly PatternObserverBotTask patternObserver = patternObserver;
+    int moveDirSign;
+    protected override Task Initialize() {
+        moveDirSign = 1;
+        return Task.CompletedTask;
+    }
+    protected override async Task<bool> Step() {
+        await Go();
+        return IsRunning;
+    }
+    private void FindMostCrowdedDirection(out double crowdedDirection, out double directionRange) {
+        double baseDirection = Direction;
+        double directionSplit = 180;
+        while(true) {
+            if(directionSplit == 22.5) {
+                crowdedDirection = baseDirection;
+                directionRange = directionSplit;
+                return;
+            }
+            double crowdLeft = crowdObserver.GetCrowdValue(X, Y, baseDirection, baseDirection + directionSplit);
+            double crowdRight = crowdObserver.GetCrowdValue(X, Y, baseDirection, baseDirection - directionSplit);
+            if(crowdLeft >= crowdRight)
+                baseDirection -= directionSplit / 2;
+            else
+                baseDirection -= directionSplit / 2;
+            directionSplit /= 4;
+        }
+    }
+}
 
 public class DedicatedThreadTaskScheduler : TaskScheduler {
     private readonly Thread _thread;
@@ -1302,7 +1857,7 @@ public class DantolBot : Bot {
             botHandle => new(new CrazyStrategyBotTask(botHandle), 1d),
             botHandle => new(new CornerStrategyBotTask(botHandle), 1d),
             botHandle => new(new SpinStrategyBotTask(botHandle), 3d),
-            botHandle => new(new WallsStrategyBotTash(botHandle), 2d)
+            botHandle => new(new WallsStrategyBotTask(botHandle), 2d)
         ]));
     }
 
@@ -1388,7 +1943,7 @@ public class DantolBot : Bot {
     public override void OnConnected(ConnectedEvent connectedEvent) => _ts.Post(() => _nativeBotHandle.OnConnected(connectedEvent));
     public override void OnDisconnected(DisconnectedEvent disconnectedEvent) => _ts.Post(() => _nativeBotHandle.OnDisconnected(disconnectedEvent));
     public override void OnConnectionError(ConnectionErrorEvent connectionErrorEvent) => _ts.Post(() => _nativeBotHandle.OnConnectionError(connectionErrorEvent));
-    public override void OnGameStarted(GameStartedEvent gameStatedEvent) => _ts.Post(() => _nativeBotHandle.OnGameStarted(gameStatedEvent));
+    public override void OnGameStarted(GameStartedEvent gameStartedEvent) => _ts.Post(() => _nativeBotHandle.OnGameStarted(gameStartedEvent));
     public override void OnGameEnded(GameEndedEvent gameEndedEvent) => _ts.Post(() => _nativeBotHandle.OnGameEnded(gameEndedEvent));
     public override void OnRoundStarted(RoundStartedEvent roundStartedEvent) => _ts.Post(() => _nativeBotHandle.OnRoundStarted(roundStartedEvent));
     public override void OnRoundEnded(RoundEndedEvent roundEndedEvent) => _ts.Post(() => _nativeBotHandle.OnRoundEnded(roundEndedEvent));
